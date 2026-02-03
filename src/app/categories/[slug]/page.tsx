@@ -7,11 +7,12 @@ import { notFound } from 'next/navigation';
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
 
-    // Simple mapping for demo purposes
-    const filteredRecipes = recipes.filter(r =>
-        r.category.toLowerCase().includes(slug.toLowerCase()) ||
-        slug === 'all'
-    );
+    // Filter recipes by category or health label
+    const filteredRecipes = recipes.filter(r => {
+        const categoryMatch = r.category.toLowerCase().includes(slug.toLowerCase());
+        const healthLabelMatch = r.healthLabel?.toLowerCase().includes(slug.toLowerCase());
+        return categoryMatch || healthLabelMatch || slug === 'all';
+    });
 
     const categoryName = slug.charAt(0).toUpperCase() + slug.slice(1).replace('-', ' ');
 

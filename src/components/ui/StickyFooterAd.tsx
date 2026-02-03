@@ -10,7 +10,7 @@ export default function StickyFooterAd() {
     if (!isVisible) return null;
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-[100] bg-white border-t shadow-[0_-4px_20px_rgba(0,0,0,0.1)] p-2 animate-in slide-in-from-bottom duration-500">
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t shadow-[0_-4px_20px_rgba(0,0,0,0.1)] p-2 animate-in slide-in-from-bottom duration-500">
             <div className="container mx-auto max-w-4xl relative flex items-center justify-center min-h-[90px]">
                 {/* Ad Unit: Standard Leaderboard 728x90 */}
                 <AdPlaceholder width={728} height={90} label="Sticky Footer Ad" className="hidden md:flex" />

@@ -118,7 +118,7 @@ export default async function RecipePage({ params }: { params: Promise<{ id: str
                         </div>
 
                         {/* Right: Media & Sidebar */}
-                        <div className="sticky top-28 space-y-8">
+                        <div className="lg:sticky lg:top-28 space-y-8 order-1 lg:order-2">
                             <div className="rounded-3xl overflow-hidden shadow-2xl">
                                 <img
                                     src={recipe.image}

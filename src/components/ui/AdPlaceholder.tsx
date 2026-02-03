@@ -17,7 +17,7 @@ export default function AdPlaceholder({
     return (
         <div
             className={cn(
-                "flex items-center justify-center bg-muted/50 border-2 border-dashed border-muted-foreground/20 rounded-lg overflow-hidden relative",
+                "flex items-center justify-center bg-muted/50 border-2 border-dashed border-muted-foreground/20 rounded-lg overflow-hidden",
                 className
             )}
             style={{ width, height }}
