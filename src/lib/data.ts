@@ -1112,5 +1112,47 @@ export const blogPosts: BlogPost[] = [
       <h3 class="text-2xl font-bold mb-3 mt-6">2. One Pot, Less Cleanup</h3>
       <p class="mb-4">We all want to spend less time standing at the sink. Slow cooker meals usually involve tossing everything into one vessel. Serve it with a slice of crusty bread, and you have a complete meal with hardly any dishes to wash.</p>
     `
+    },
+    {
+        id: "hydration-hacks-seniors",
+        title: "Hydration Hacks: Why Water Matters More as We Age",
+        excerpt: "Dehydration is a common risk for seniors. Learn why your thirst mechanism changes and how to stay hydrated effortlessly.",
+        image: "https://images.unsplash.com/photo-1548839140-29a749e1cf4d?q=80&w=800&auto=format&fit=crop",
+        date: "February 12, 2026",
+        readTime: "4 min read",
+        category: "Health",
+        content: `
+      <p class="mb-4">Did you know that as we age, our sense of thirst diminishes? By the time you actually feel thirsty, you might already be mildly dehydrated. Staying hydrated is crucial for energy levels, brain function, and joint health.</p>
+      
+      <h3 class="text-2xl font-bold mb-3 mt-6">1. Eat Your Water</h3>
+      <p class="mb-4">You don't have to just drink plain water. Fruits and vegetables like watermelon, cucumbers, strawberries, and soups contribute significantly to your daily fluid intake. A bowl of minestrone soup is a delicious way to hydrate.</p>
+      
+      <h3 class="text-2xl font-bold mb-3 mt-6">2. Set Visual Reminders</h3>
+      <p class="mb-4">Keep a pitcher of water on the kitchen counter or dining table. Seeing it acts as a cue to pour a glass. If you take medication, always drink a full glass of water with it rather than just a sip.</p>
+      
+      <h3 class="text-2xl font-bold mb-3 mt-6">3. Flavor it Naturally</h3>
+      <p class="mb-4">If plain water bores you, infuse it! A slice of lemon, a few mint leaves, or some frozen berries can make water refreshing and spa-like, encouraging you to sip more throughout the day.</p>
+    `
+    },
+    {
+        id: "protein-power-50-plus",
+        title: "Protein Power: Muscle Maintenance After 50",
+        excerpt: "Sarcopenia (muscle loss) is a real concern. Discover easy, soft, and delicious ways to keep your protein intake high.",
+        image: "https://images.unsplash.com/photo-1610725663728-6625aa6d4204?q=80&w=800&auto=format&fit=crop",
+        date: "February 15, 2026",
+        readTime: "5 min read",
+        category: "Nutrition",
+        content: `
+      <p class="mb-4">Maintaining muscle mass is the key to independence as we age. It keeps us strong, prevents falls, and boosts metabolism. But many seniors struggle to eat enough protein due to chewing difficulties or lower appetite.</p>
+      
+      <h3 class="text-2xl font-bold mb-3 mt-6">1. Think Beyond Steak</h3>
+      <p class="mb-4">Protein doesn't always have to be a chewy piece of meat. Eggs, Greek yogurt, cottage cheese, and soft-cooked beans are excellent high-protein sources that are gentle on teeth and easy to digest.</p>
+      
+      <h3 class="text-2xl font-bold mb-3 mt-6">2. Sneak it In</h3>
+      <p class="mb-4">Add a scoop of unflavored whey protein or powdered milk to your morning oatmeal, soup, or mashed potatoes. It dissolves completely and boosts the nutritional value without altering the taste.</p>
+      
+      <h3 class="text-2xl font-bold mb-3 mt-6">3. Prioritize it at Breakfast</h3>
+      <p class="mb-4">Many of us eat a carb-heavy breakfast (toast, cereal) and backload protein at dinner. Spreading protein intake throughout the day is better for muscle synthesis. Try scrambled eggs or high-protein yogurt to start your day.</p>
+    `
     }
 ];
