@@ -1073,5 +1073,44 @@ export const blogPosts: BlogPost[] = [
       <h3 class="text-2xl font-bold mb-3 mt-6">2. Freeze in Portions</h3>
       <p class="mb-4">If you make a big pot of soup, don't put the whole pot in the fridge. Ladle it into single-serving containers immediately. These become your own homemade 'TV dinners' for nights you don't feel like cooking.</p>
     `
+    },
+    {
+        id: "digestive-health-seniors",
+        title: "Digestive Health: Foods to embrace and Avoid after 50",
+        excerpt: "As we age, our digestion changes. Learn which foods soothe your stomach and which might be causing discomfort.",
+        image: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=800&auto=format&fit=crop",
+        date: "February 5, 2026",
+        readTime: "5 min read",
+        category: "Health",
+        content: `
+      <p class="mb-4">It's not your imagination—foods you used to eat without issue might now cause heartburn or bloating. This is a natural part of aging, but simple dietary tweaks can keep your digestive system running smoothly.</p>
+      
+      <h3 class="text-2xl font-bold mb-3 mt-6">1. Fiber is Your Best Friend</h3>
+      <p class="mb-4">Constipation is a common complaint among seniors. Increasing soluble fiber from oats, apples, and beans can keep things moving. Just remember to increase water intake simultaneously to help the fiber do its job.</p>
+      
+      <h3 class="text-2xl font-bold mb-3 mt-6">2. Watch the Spices</h3>
+      <p class="mb-4">Extremely spicy foods can irritate the lining of the stomach. If you love flavor, try shifting towards aromatic spices like basil, oregano, and turmeric, which are anti-inflammatory, rather than chili powder or hot sauce.</p>
+      
+      <h3 class="text-2xl font-bold mb-3 mt-6">3. Smaller, More Frequent Meals</h3>
+      <p class="mb-4">A large, heavy dinner can be hard to digest before bed. Try shifting your largest meal to lunch, and having a lighter supper. This gives your body ample time to digest before you lie down to sleep.</p>
+    `
+    },
+    {
+        id: "joy-of-slow-cooking",
+        title: "The Joy of Slow Cooking: Why It's Perfect for Retirement",
+        excerpt: "Rediscover the patience and reward of traditional cooking methods that fill your home with warmth.",
+        image: "https://images.unsplash.com/photo-1547592180-85f173990554?q=80&w=800&auto=format&fit=crop",
+        date: "February 8, 2026",
+        readTime: "4 min read",
+        category: "Lifestyle",
+        content: `
+      <p class="mb-4">In a fast-paced career, the microwave was a necessity. In retirement, the slow cooker (or Dutch oven) is a luxury. There is something deeply satisfying about starting a meal in the morning and smelling it simmer all day.</p>
+      
+      <h3 class="text-2xl font-bold mb-3 mt-6">1. Tough Cuts Become Tender</h3>
+      <p class="mb-4">Slow cooking allows you to buy more affordable, tougher cuts of meat like chuck roast or pork shoulder. Over time, the collagen breaks down, resulting in meat that is far more tender and flavorful than expensive quick-cook steaks.</p>
+      
+      <h3 class="text-2xl font-bold mb-3 mt-6">2. One Pot, Less Cleanup</h3>
+      <p class="mb-4">We all want to spend less time standing at the sink. Slow cooker meals usually involve tossing everything into one vessel. Serve it with a slice of crusty bread, and you have a complete meal with hardly any dishes to wash.</p>
+    `
     }
 ];

@@ -20,7 +20,7 @@ export default function AboutPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
                             <div>
                                 <img
-                                    src="https://images.unsplash.com/photo-1581578731522-7b75477a23d9?q=80&w=800&auto=format&fit=crop"
+                                    src="/images/senior_cooking_traditional.png"
                                     alt="Senior Cooking Traditional Meal"
                                     className="rounded-3xl shadow-2xl"
                                 />
