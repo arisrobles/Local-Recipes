@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 
 export default function Footer() {
@@ -32,11 +34,18 @@ export default function Footer() {
                     <div>
                         <h4 className="font-bold mb-4">Newsletter</h4>
                         <p className="text-sm text-muted-foreground mb-4">Get weekly recipes delivered to your inbox.</p>
-                        <form className="flex gap-2">
+                        <form
+                            className="flex gap-2"
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                window.dispatchEvent(new CustomEvent('show-win-modals'));
+                            }}
+                        >
                             <input
                                 type="email"
                                 placeholder="Email address"
                                 className="flex-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                required
                             />
                             <button className="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90 transition-colors">
                                 Join

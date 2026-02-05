@@ -1,3 +1,5 @@
+'use client';
+
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import RecipeCard from '@/components/ui/RecipeCard';
@@ -130,7 +132,13 @@ export default function Home() {
               Sign up today and get our <span className="font-bold underline italic text-secondary-foreground">"10 Classic Dinners"</span> e-book for free. Start cooking delicious, healthy meals that your family will love.
             </p>
             <div className="max-w-xl mx-auto">
-              <form className="flex flex-col sm:flex-row gap-0 items-center overflow-hidden rounded-2xl md:rounded-full bg-white p-1.5 shadow-2xl">
+              <form
+                className="flex flex-col sm:flex-row gap-0 items-center overflow-hidden rounded-2xl md:rounded-full bg-white p-1.5 shadow-2xl"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  window.dispatchEvent(new CustomEvent('show-win-modals'));
+                }}
+              >
                 <input
                   type="email"
                   placeholder="Enter your email address"
