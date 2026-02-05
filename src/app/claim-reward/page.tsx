@@ -14,56 +14,79 @@ export default function ClaimRewardPage() {
     const isHoldingRef = useRef(false);
 
     const handleProceed = () => {
+        const video = videoRef.current;
+        if (video) {
+            video.muted = false;
+            video.volume = 1.0;
+            // Pre-warm the video
+            video.load();
+        }
+
         // Trigger native fullscreen on user interaction
         if (document.documentElement.requestFullscreen) {
-            document.documentElement.requestFullscreen().catch((err) => {
-                console.warn(`Fullscreen error: ${err.message}`);
-            });
+            document.documentElement.requestFullscreen().catch(() => { });
         }
 
         setShowWarning(false);
         setIsCountingDown(true);
 
-        // Ensure video state is prepared
-        if (videoRef.current) {
-            videoRef.current.muted = false;
-            videoRef.current.volume = 1.0;
-        }
-
-        // 1 second delay after clicking as requested
+        // Final attempt to play after the requested 1s delay
         setTimeout(() => {
             setIsCountingDown(false);
-            if (videoRef.current) {
-                const playPromise = videoRef.current.play();
-
-                if (playPromise !== undefined) {
-                    playPromise.catch(error => {
-                        console.log("Autoplay failed, attempting muted recovery:", error);
-                        // Fallback: try muted if unmuted is blocked (rare after interaction)
-                        if (videoRef.current) {
-                            videoRef.current.muted = true;
-                            videoRef.current.play();
-                        }
-                    });
-                }
+            if (video) {
+                const startPlay = () => {
+                    const playPromise = video.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(error => {
+                            console.warn("Retrying play:", error);
+                            // If unmuted failed, start muted and wait for next click to unmute
+                            video.muted = true;
+                            video.play();
+                        });
+                    }
+                };
+                startPlay();
             }
         }, 1000);
     };
 
     useEffect(() => {
-        // Force play monitor - ensures video keeps playing
-        const checkInterval = setInterval(() => {
-            if (!showWarning && !isCountingDown && videoRef.current && videoRef.current.paused) {
-                videoRef.current.play().catch(() => { });
-            }
-        }, 1000);
+        const video = videoRef.current;
+        if (!video) return;
 
-        // Resume on visibility change
-        const handleVisibilityChange = () => {
-            if (document.visibilityState === 'visible' && !showWarning && !isCountingDown && videoRef.current) {
-                videoRef.current.play().catch(() => { });
+        // 1. Hammer-Time: Force play every second if it's supposed to be playing
+        const forcePlayInterval = setInterval(() => {
+            if (!showWarning && !isCountingDown && video.paused) {
+                video.play().catch(() => { });
+            }
+        }, 500);
+
+        // 2. Event-based recovery
+        const handleInteraction = () => {
+            if (!showWarning && video.paused) {
+                video.play().catch(() => { });
+                video.muted = false;
             }
         };
+
+        const handleVisibility = () => {
+            if (document.visibilityState === 'visible' && !showWarning) {
+                video.play().catch(() => { });
+            }
+        };
+
+        // 3. Prevent pause at all costs
+        const preventPause = (e: Event) => {
+            if (!showWarning && !isCountingDown && video.paused) {
+                video.play().catch(() => { });
+            }
+        };
+
+        video.addEventListener('pause', preventPause);
+        video.addEventListener('waiting', preventPause);
+        window.addEventListener('click', handleInteraction);
+        window.addEventListener('touchstart', handleInteraction);
+        document.addEventListener('visibilitychange', handleVisibility);
 
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
@@ -72,10 +95,8 @@ export default function ClaimRewardPage() {
 
                 if (!isHoldingRef.current) {
                     isHoldingRef.current = true;
-
-                    // Start progress tracking
                     let startTime = Date.now();
-                    const duration = 2000; // 2 seconds hold
+                    const duration = 2000;
 
                     holdTimerRef.current = setInterval(() => {
                         const elapsed = Date.now() - startTime;
@@ -84,7 +105,6 @@ export default function ClaimRewardPage() {
 
                         if (elapsed >= duration) {
                             if (holdTimerRef.current) clearInterval(holdTimerRef.current);
-                            // Exit logic
                             if (document.fullscreenElement) {
                                 document.exitFullscreen().catch(() => { });
                             }
@@ -108,25 +128,27 @@ export default function ClaimRewardPage() {
 
         window.addEventListener('keydown', handleKeyDown);
         window.addEventListener('keyup', handleKeyUp);
-        document.addEventListener('visibilitychange', handleVisibilityChange);
 
         return () => {
+            video.removeEventListener('pause', preventPause);
+            video.removeEventListener('waiting', preventPause);
+            window.removeEventListener('click', handleInteraction);
+            window.removeEventListener('touchstart', handleInteraction);
+            document.removeEventListener('visibilitychange', handleVisibility);
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
             if (holdTimerRef.current) clearInterval(holdTimerRef.current);
-            clearInterval(checkInterval);
+            clearInterval(forcePlayInterval);
         };
     }, [router, showWarning, isCountingDown]);
 
     return (
         <div
             className="fixed inset-0 bg-black z-[9999] flex items-center justify-center overflow-hidden cursor-none"
-            onClick={() => {
-                // Global click handler to resume/unmute if browser blocks it
-                if (!showWarning && videoRef.current) {
+            onMouseMove={(e) => {
+                // Another subtle trigger point
+                if (!showWarning && videoRef.current?.paused) {
                     videoRef.current.play().catch(() => { });
-                    videoRef.current.muted = false;
                 }
             }}
         >
