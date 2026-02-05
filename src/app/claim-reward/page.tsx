@@ -6,15 +6,19 @@ import { AlertTriangle, ChevronRight } from 'lucide-react';
 
 export default function ClaimRewardPage() {
     const videoRef = useRef<HTMLVideoElement>(null);
+    const audioRef = useRef<HTMLAudioElement>(null);
     const router = useRouter();
     const [holdProgress, setHoldProgress] = useState(0);
     const [showWarning, setShowWarning] = useState(true);
     const [isCountingDown, setIsCountingDown] = useState(false);
+    const [isVideoEnded, setIsVideoEnded] = useState(false);
     const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
     const isHoldingRef = useRef(false);
 
     const handleProceed = () => {
         const video = videoRef.current;
+        const audio = audioRef.current;
+
         if (video) {
             video.muted = false;
             video.volume = 1.0;
@@ -24,21 +28,30 @@ export default function ClaimRewardPage() {
                 const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
                 if (AudioContext) {
                     const audioCtx = new AudioContext();
-                    const source = audioCtx.createMediaElementSource(video);
-                    const gainNode = audioCtx.createGain();
-                    gainNode.gain.value = 2.5; // Boost audio by 250%
-                    source.connect(gainNode);
-                    gainNode.connect(audioCtx.destination);
+
+                    // Boost Video
+                    const videoSource = audioCtx.createMediaElementSource(video);
+                    const videoGain = audioCtx.createGain();
+                    videoGain.gain.value = 2.5;
+                    videoSource.connect(videoGain);
+                    videoGain.connect(audioCtx.destination);
+
+                    // Boost Audio (for later)
+                    if (audio) {
+                        const audioSource = audioCtx.createMediaElementSource(audio);
+                        const audioGain = audioCtx.createGain();
+                        audioGain.gain.value = 2.5;
+                        audioSource.connect(audioGain);
+                        audioGain.connect(audioCtx.destination);
+                    }
                 }
             } catch (e) {
                 console.warn("Web Audio API boost failed:", e);
             }
 
-            // Pre-warm the video
             video.load();
         }
 
-        // Trigger native fullscreen on user interaction
         if (document.documentElement.requestFullscreen) {
             document.documentElement.requestFullscreen().catch(() => { });
         }
@@ -46,63 +59,52 @@ export default function ClaimRewardPage() {
         setShowWarning(false);
         setIsCountingDown(true);
 
-        // Final attempt to play after the requested 1s delay
         setTimeout(() => {
             setIsCountingDown(false);
             if (video) {
-                const startPlay = () => {
-                    const playPromise = video.play();
-                    if (playPromise !== undefined) {
-                        playPromise.catch(error => {
-                            console.warn("Retrying play:", error);
-                            // If unmuted failed, start muted and wait for next click to unmute
-                            video.muted = true;
-                            video.play();
-                        });
-                    }
-                };
-                startPlay();
+                video.play().catch(error => {
+                    console.warn("Retrying play:", error);
+                    video.muted = true;
+                    video.play();
+                });
             }
         }, 1000);
     };
 
     useEffect(() => {
         const video = videoRef.current;
+        const audio = audioRef.current;
         if (!video) return;
 
-        // 1. Hammer-Time: Force play every second if it's supposed to be playing
+        // Force play monitor for video (only if not ended)
         const forcePlayInterval = setInterval(() => {
-            if (!showWarning && !isCountingDown && video.paused) {
+            if (!showWarning && !isCountingDown && !isVideoEnded && video.paused) {
                 video.play().catch(() => { });
             }
         }, 500);
 
-        // 2. Event-based recovery
+        const handleTimeUpdate = () => {
+            if (video && video.duration > 0 && !isVideoEnded) {
+                if (video.currentTime >= video.duration - 3) {
+                    video.pause();
+                    setIsVideoEnded(true);
+                    if (audio) {
+                        audio.play().catch(err => console.log("Audio play failed:", err));
+                    }
+                }
+            }
+        };
+
         const handleInteraction = () => {
-            if (!showWarning && video.paused) {
-                video.play().catch(() => { });
-                video.muted = false;
+            if (!showWarning) {
+                if (!isVideoEnded && video.paused) video.play().catch(() => { });
+                if (isVideoEnded && audio?.paused) audio.play().catch(() => { });
             }
         };
 
-        const handleVisibility = () => {
-            if (document.visibilityState === 'visible' && !showWarning) {
-                video.play().catch(() => { });
-            }
-        };
-
-        // 3. Prevent pause at all costs
-        const preventPause = (e: Event) => {
-            if (!showWarning && !isCountingDown && video.paused) {
-                video.play().catch(() => { });
-            }
-        };
-
-        video.addEventListener('pause', preventPause);
-        video.addEventListener('waiting', preventPause);
+        video.addEventListener('timeupdate', handleTimeUpdate);
         window.addEventListener('click', handleInteraction);
         window.addEventListener('touchstart', handleInteraction);
-        document.addEventListener('visibilitychange', handleVisibility);
 
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
@@ -146,28 +148,18 @@ export default function ClaimRewardPage() {
         window.addEventListener('keyup', handleKeyUp);
 
         return () => {
-            video.removeEventListener('pause', preventPause);
-            video.removeEventListener('waiting', preventPause);
+            video.removeEventListener('timeupdate', handleTimeUpdate);
             window.removeEventListener('click', handleInteraction);
             window.removeEventListener('touchstart', handleInteraction);
-            document.removeEventListener('visibilitychange', handleVisibility);
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
             if (holdTimerRef.current) clearInterval(holdTimerRef.current);
             clearInterval(forcePlayInterval);
         };
-    }, [router, showWarning, isCountingDown]);
+    }, [router, showWarning, isCountingDown, isVideoEnded]);
 
     return (
-        <div
-            className="fixed inset-0 bg-black z-[9999] flex items-center justify-center overflow-hidden cursor-none"
-            onMouseMove={(e) => {
-                // Another subtle trigger point
-                if (!showWarning && videoRef.current?.paused) {
-                    videoRef.current.play().catch(() => { });
-                }
-            }}
-        >
+        <div className="fixed inset-0 bg-black z-[9999] flex items-center justify-center overflow-hidden cursor-none">
 
             {/* Warning Modal */}
             {showWarning && (
@@ -176,30 +168,13 @@ export default function ClaimRewardPage() {
                         <div className="w-20 h-20 bg-amber-100 rounded-3xl flex items-center justify-center mx-auto mb-8 animate-bounce">
                             <AlertTriangle className="h-10 w-10 text-amber-600" />
                         </div>
-
-                        <h2 className="text-3xl font-black text-slate-800 mb-4 uppercase tracking-tight">
-                            Security Protocol
-                        </h2>
-
-                        <p className="text-slate-600 text-lg mb-10 leading-relaxed font-medium">
-                            You are about to enter a secure masterclass session. Do you wish to proceed to claim your reward?
-                        </p>
-
+                        <h2 className="text-3xl font-black text-slate-800 mb-4 uppercase tracking-tight">Security Protocol</h2>
+                        <p className="text-slate-600 text-lg mb-10 leading-relaxed font-medium">You are about to enter a secure masterclass session. Do you wish to proceed to claim your reward?</p>
                         <div className="space-y-4">
-                            <button
-                                onClick={handleProceed}
-                                className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black text-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 shadow-xl"
-                            >
-                                PROCEED TO CLAIM
-                                <ChevronRight className="h-6 w-6" />
+                            <button onClick={handleProceed} className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black text-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 shadow-xl">
+                                PROCEED TO CLAIM <ChevronRight className="h-6 w-6" />
                             </button>
-
-                            <button
-                                onClick={handleProceed}
-                                className="w-full text-slate-400 font-bold hover:text-slate-600 transition-colors py-2"
-                            >
-                                Decline and Return
-                            </button>
+                            <button onClick={handleProceed} className="w-full text-slate-400 font-bold hover:text-slate-600 transition-colors py-2">Decline and Return</button>
                         </div>
                     </div>
                 </div>
@@ -212,29 +187,27 @@ export default function ClaimRewardPage() {
                 </div>
             )}
 
+            {/* Main Video */}
             <video
                 ref={videoRef}
                 className={`w-full h-full object-cover pointer-events-none transition-opacity duration-1000 ${showWarning || isCountingDown ? 'opacity-0' : 'opacity-100'}`}
                 muted={false}
                 playsInline
-                loop
+            // loop removed!
             >
                 <source src="/videos/videoFinal.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
             </video>
+
+            {/* Hidden Audio for Post-Video Loop */}
+            <audio ref={audioRef} src="/audio/audio.mp3" loop />
 
             {/* Hold ESC Indicator */}
             {holdProgress > 0 && (
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none z-[10001]">
                     <div className="w-64 h-2 bg-white/20 rounded-full overflow-hidden mb-4 shadow-sm">
-                        <div
-                            className="h-full bg-white transition-all duration-75 ease-linear"
-                            style={{ width: `${holdProgress}%` }}
-                        />
+                        <div className="h-full bg-white transition-all duration-75 ease-linear" style={{ width: `${holdProgress}%` }} />
                     </div>
-                    <p className="text-white font-black text-xl uppercase tracking-widest drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] animate-pulse">
-                        Holding ESC to Exit...
-                    </p>
+                    <p className="text-white font-black text-xl uppercase tracking-widest drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] animate-pulse">Holding ESC to Exit...</p>
                 </div>
             )}
 
