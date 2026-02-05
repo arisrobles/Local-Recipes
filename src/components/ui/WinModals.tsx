@@ -19,13 +19,6 @@ export default function WinModals() {
     }, []);
 
     const handleClaim = () => {
-        // Attempt to trigger native browser fullscreen
-        if (document.documentElement.requestFullscreen) {
-            document.documentElement.requestFullscreen().catch((err) => {
-                console.warn(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-            });
-        }
-
         setIsVisible(false);
         router.push('/claim-reward');
     };
