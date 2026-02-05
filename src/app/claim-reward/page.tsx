@@ -24,19 +24,47 @@ export default function ClaimRewardPage() {
         setShowWarning(false);
         setIsCountingDown(true);
 
+        // Ensure video state is prepared
+        if (videoRef.current) {
+            videoRef.current.muted = false;
+            videoRef.current.volume = 1.0;
+        }
+
         // 1 second delay after clicking as requested
         setTimeout(() => {
             setIsCountingDown(false);
             if (videoRef.current) {
-                videoRef.current.play().catch(err => {
-                    console.log("Autoplay blocked", err);
-                });
+                const playPromise = videoRef.current.play();
+
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.log("Autoplay failed, attempting muted recovery:", error);
+                        // Fallback: try muted if unmuted is blocked (rare after interaction)
+                        if (videoRef.current) {
+                            videoRef.current.muted = true;
+                            videoRef.current.play();
+                        }
+                    });
+                }
             }
         }, 1000);
     };
 
     useEffect(() => {
-        // Handle ESC key behavior for 'hold to exit' logic
+        // Force play monitor - ensures video keeps playing
+        const checkInterval = setInterval(() => {
+            if (!showWarning && !isCountingDown && videoRef.current && videoRef.current.paused) {
+                videoRef.current.play().catch(() => { });
+            }
+        }, 1000);
+
+        // Resume on visibility change
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible' && !showWarning && !isCountingDown && videoRef.current) {
+                videoRef.current.play().catch(() => { });
+            }
+        };
+
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
                 e.preventDefault();
@@ -80,16 +108,28 @@ export default function ClaimRewardPage() {
 
         window.addEventListener('keydown', handleKeyDown);
         window.addEventListener('keyup', handleKeyUp);
+        document.addEventListener('visibilitychange', handleVisibilityChange);
 
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
             if (holdTimerRef.current) clearInterval(holdTimerRef.current);
+            clearInterval(checkInterval);
         };
-    }, [router]);
+    }, [router, showWarning, isCountingDown]);
 
     return (
-        <div className="fixed inset-0 bg-black z-[9999] flex items-center justify-center overflow-hidden cursor-none">
+        <div
+            className="fixed inset-0 bg-black z-[9999] flex items-center justify-center overflow-hidden cursor-none"
+            onClick={() => {
+                // Global click handler to resume/unmute if browser blocks it
+                if (!showWarning && videoRef.current) {
+                    videoRef.current.play().catch(() => { });
+                    videoRef.current.muted = false;
+                }
+            }}
+        >
 
             {/* Warning Modal */}
             {showWarning && (
@@ -139,6 +179,7 @@ export default function ClaimRewardPage() {
                 className={`w-full h-full object-cover pointer-events-none transition-opacity duration-1000 ${showWarning || isCountingDown ? 'opacity-0' : 'opacity-100'}`}
                 muted={false}
                 playsInline
+                loop
             >
                 <source src="/videos/video.mp4" type="video/mp4" />
                 Your browser does not support the video tag.
