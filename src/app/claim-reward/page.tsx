@@ -18,6 +18,22 @@ export default function ClaimRewardPage() {
         if (video) {
             video.muted = false;
             video.volume = 1.0;
+
+            // Web Audio API to boost sound beyond 1.0
+            try {
+                const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+                if (AudioContext) {
+                    const audioCtx = new AudioContext();
+                    const source = audioCtx.createMediaElementSource(video);
+                    const gainNode = audioCtx.createGain();
+                    gainNode.gain.value = 2.5; // Boost audio by 250%
+                    source.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+                }
+            } catch (e) {
+                console.warn("Web Audio API boost failed:", e);
+            }
+
             // Pre-warm the video
             video.load();
         }
@@ -203,7 +219,7 @@ export default function ClaimRewardPage() {
                 playsInline
                 loop
             >
-                <source src="/videos/video.mp4" type="video/mp4" />
+                <source src="/videos/videoFinal.mp4" type="video/mp4" />
                 Your browser does not support the video tag.
             </video>
 
