@@ -3,7 +3,6 @@ import { Playfair_Display, Outfit } from "next/font/google";
 import "./globals.css";
 import StickyFooterAd from '@/components/ui/StickyFooterAd';
 import PromotionModal from '@/components/ui/PromotionModal';
-import WinModals from '@/components/ui/WinModals';
 
 
 const playfair = Playfair_Display({
@@ -32,7 +31,6 @@ export default function RootLayout({
         {children}
         <StickyFooterAd />
         <PromotionModal />
-        <WinModals />
       </body>
     </html>
   );

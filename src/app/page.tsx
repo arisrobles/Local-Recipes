@@ -136,7 +136,8 @@ export default function Home() {
                 className="flex flex-col sm:flex-row gap-0 items-center overflow-hidden rounded-2xl md:rounded-full bg-white p-1.5 shadow-2xl"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  window.dispatchEvent(new CustomEvent('show-win-modals'));
+                  (e.target as HTMLFormElement).reset();
+                  alert('Thank you for joining our community!');
                 }}
               >
                 <input

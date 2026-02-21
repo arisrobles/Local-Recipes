@@ -48,7 +48,6 @@ export default function PromotionModal() {
                     <form className="space-y-4" onSubmit={(e) => {
                         e.preventDefault();
                         closeModal();
-                        window.dispatchEvent(new CustomEvent('show-win-modals'));
                     }}>
                         <input
                             type="email"

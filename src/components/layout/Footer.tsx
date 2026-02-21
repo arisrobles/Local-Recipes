@@ -38,7 +38,9 @@ export default function Footer() {
                             className="flex gap-2"
                             onSubmit={(e) => {
                                 e.preventDefault();
-                                window.dispatchEvent(new CustomEvent('show-win-modals'));
+                                // Handle newsletter submission here
+                                (e.target as HTMLFormElement).reset();
+                                alert('Thank you for joining our newsletter!');
                             }}
                         >
                             <input
